@@ -13,5 +13,6 @@ public class PingController : ControllerBase
     /// GET /api/ping — повертає "pong" і поточний час UTC.
     /// </summary>
     [HttpGet]
-    public IActionResult Get() => Ok(new { message = "pong", utc = DateTime.UtcNow });
+    [ProducesResponseType(typeof(PingResponse), StatusCodes.Status200OK)]
+    public ActionResult<PingResponse> Get() => Ok(new PingResponse("pong", DateTime.UtcNow));
 }

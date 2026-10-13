@@ -1,3 +1,4 @@
+using OnlineStore.Api.Common;
 using OnlineStore.Api.Data;
 using OnlineStore.Api.Features.Categories;
 using OnlineStore.Api.Features.Health;
@@ -18,7 +19,7 @@ builder.Services.AddOpenApi(options =>
     {
         document.Info = new OpenApiInfo
         {
-            Title = "Online Store / Warehouse API",
+            Title = ApiInfo.Name,
             Version = "v1",
             Description =
                 "REST API інтернет-магазину з кількома складами: каталог товарів, облік залишків і життєвий цикл замовлень."
@@ -26,6 +27,7 @@ builder.Services.AddOpenApi(options =>
         return Task.CompletedTask;
     });
 });
+builder.Services.AddStoreOptions();
 builder.Services.AddHealthFeature();
 builder.Services.AddCategoriesFeature();
 builder.Services.AddProductsFeature();

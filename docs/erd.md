@@ -304,5 +304,3 @@ erDiagram
 
 - [x] Дві діаграми, PUT/journal, `ProductName`, `OrderId` — коментар викладача в PR #91
 - [ ] Фінальний approve після виправлення кардинальності та синтаксису Mermaid (цей коміт)
-
-Текст для **усного захисту** issue #5 (окремо від AC): [erd-defense.md](erd-defense.md).

@@ -1,7 +1,9 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Hosting;
 
 namespace OnlineStore.Api.Features.Health;
 
@@ -18,10 +20,14 @@ public static class HealthCheckResponseWriter
 
     /// <summary>
     /// Записує стан перевірок здоров'я у форматі JSON у відповідь HTTP.
+    /// Текст винятку виводиться лише в середовищі Development, щоб не розкривати деталі інфраструктури.
     /// </summary>
     public static Task WriteJsonResponse(HttpContext context, HealthReport report)
     {
         context.Response.ContentType = "application/json; charset=utf-8";
+
+        var hostEnvironment = context.RequestServices.GetService<IHostEnvironment>();
+        var isDevelopment = hostEnvironment?.IsDevelopment() ?? false;
 
         var payload = new
         {
@@ -34,7 +40,7 @@ public static class HealthCheckResponseWriter
                     status = entry.Value.Status.ToString(),
                     description = entry.Value.Description,
                     duration = entry.Value.Duration.ToString(),
-                    error = entry.Value.Exception?.Message,
+                    error = isDevelopment ? entry.Value.Exception?.Message : null,
                     tags = entry.Value.Tags
                 })
         };

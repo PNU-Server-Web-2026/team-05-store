@@ -28,10 +28,10 @@ public static class HealthFeatureExtensions
     /// </summary>
     public static WebApplication MapHealthFeature(this WebApplication app)
     {
-        // Liveness: перевіряє лише, що процес живий (виключає перевірку БД).
+        // Liveness: перевіряє лише, що процес живий (не виконує жодних перевірок).
         app.MapHealthChecks("/health", new HealthCheckOptions
         {
-            Predicate = check => !check.Tags.Contains("ready"),
+            Predicate = _ => false,
             ResponseWriter = HealthCheckResponseWriter.WriteJsonResponse
         });
 

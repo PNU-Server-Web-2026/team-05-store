@@ -36,7 +36,7 @@ public class CategoriesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     [Fact]
     public async Task GetById_ReturnsNotFound_WhenMissing()
     {
-        var response = await _client.GetAsync("/api/categories/999999");
+        var response = await _client.GetAsync($"/api/categories/{Guid.NewGuid()}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -51,7 +51,7 @@ public class CategoriesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<CategoryResponse>();
         Assert.NotNull(body);
-        Assert.True(body.Id > 0);
+        Assert.NotEqual(Guid.Empty, body.Id);
         Assert.Equal(request.Name, body.Name);
         Assert.Equal(request.Slug, body.Slug);
         Assert.Equal(request.Description, body.Description);
@@ -84,7 +84,7 @@ public class CategoriesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     {
         var request = new UpdateCategoryRequest("Missing", "missing", "none");
 
-        var response = await _client.PutAsJsonAsync("/api/categories/999999", request);
+        var response = await _client.PutAsJsonAsync($"/api/categories/{Guid.NewGuid()}", request);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -105,7 +105,7 @@ public class CategoriesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     [Fact]
     public async Task Delete_ReturnsNotFound_WhenMissing()
     {
-        var response = await _client.DeleteAsync("/api/categories/999999");
+        var response = await _client.DeleteAsync($"/api/categories/{Guid.NewGuid()}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -125,9 +125,9 @@ public class CategoriesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         return new CreateCategoryRequest($"Phones {suffix}", $"smart-phones-{suffix}", "Mobile phones");
     }
 
-    private sealed record CreateCategoryRequest(string Name, string Slug, string Description);
+    private sealed record CreateCategoryRequest(string Name, string Slug, string? Description);
 
-    private sealed record UpdateCategoryRequest(string Name, string Slug, string Description);
+    private sealed record UpdateCategoryRequest(string Name, string Slug, string? Description);
 
-    private sealed record CategoryResponse(int Id, string Name, string Slug, string Description);
+    private sealed record CategoryResponse(Guid Id, string Name, string Slug, string? Description);
 }

@@ -13,8 +13,8 @@ public class CategoriesController(ICategoryService categories) : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<ActionResult<CategoryResponse>> GetById(int id, CancellationToken cancellationToken)
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<CategoryResponse>> GetById(Guid id, CancellationToken cancellationToken)
     {
         var result = await categories.GetByIdAsync(id, cancellationToken);
         if (result is null)
@@ -34,9 +34,9 @@ public class CategoriesController(ICategoryService categories) : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
-    [HttpPut("{id:int}")]
+    [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(
-        int id,
+        Guid id,
         UpdateCategoryRequest request,
         CancellationToken cancellationToken)
     {
@@ -49,8 +49,8 @@ public class CategoriesController(ICategoryService categories) : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
         var deleted = await categories.DeleteAsync(id, cancellationToken);
         if (!deleted)

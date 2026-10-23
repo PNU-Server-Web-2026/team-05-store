@@ -22,8 +22,8 @@ public class WarehousesController(IWarehouseService warehouseService) : Controll
     /// <summary>
     /// Отримує склад за його унікальним ідентифікатором.
     /// </summary>
-    [HttpGet("{id:int}")]
-    public async Task<ActionResult<WarehouseResponse>> GetById(int id, CancellationToken cancellationToken)
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<WarehouseResponse>> GetById(Guid id, CancellationToken cancellationToken)
     {
         var warehouse = await warehouseService.GetByIdAsync(id, cancellationToken);
         if (warehouse is null)
@@ -47,8 +47,8 @@ public class WarehousesController(IWarehouseService warehouseService) : Controll
     /// <summary>
     /// Оновлює дані існуючого складу.
     /// </summary>
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateWarehouseRequest request, CancellationToken cancellationToken)
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateWarehouseRequest request, CancellationToken cancellationToken)
     {
         bool updated = await warehouseService.UpdateAsync(id, request, cancellationToken);
         if (!updated)
@@ -62,8 +62,8 @@ public class WarehousesController(IWarehouseService warehouseService) : Controll
     /// <summary>
     /// Видаляє склад за ідентифікатором.
     /// </summary>
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
         bool deleted = await warehouseService.DeleteAsync(id, cancellationToken);
         if (!deleted)

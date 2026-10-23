@@ -7,55 +7,66 @@ namespace OnlineStore.Api.Features.Warehouses;
 /// </summary>
 public class InMemoryWarehouseService : IWarehouseService
 {
-    private readonly ConcurrentDictionary<int, WarehouseResponse> _warehouses = new();
-    private int _currentId;
+    private readonly ConcurrentDictionary<Guid, Warehouse> _warehouses = new();
 
     /// <inheritdoc />
     public Task<IReadOnlyList<WarehouseResponse>> GetAllAsync(CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         IReadOnlyList<WarehouseResponse> result = _warehouses.Values
             .OrderBy(w => w.Id)
-            .ToList();
+            .Select(ToResponse)
+            .ToArray();
 
         return Task.FromResult(result);
     }
 
     /// <inheritdoc />
-    public Task<WarehouseResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public Task<WarehouseResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        _warehouses.TryGetValue(id, out var warehouse);
-        return Task.FromResult(warehouse);
+        cancellationToken.ThrowIfCancellationRequested();
+        if (!_warehouses.TryGetValue(id, out var warehouse))
+        {
+            return Task.FromResult<WarehouseResponse?>(null);
+        }
+
+        return Task.FromResult<WarehouseResponse?>(ToResponse(warehouse));
     }
 
     /// <inheritdoc />
     public Task<WarehouseResponse> CreateAsync(CreateWarehouseRequest request, CancellationToken cancellationToken = default)
     {
-        int id = Interlocked.Increment(ref _currentId);
-        var warehouse = new WarehouseResponse(id, request.Name, request.City, request.Address, request.Priority);
+        cancellationToken.ThrowIfCancellationRequested();
+        var id = Guid.NewGuid();
+        var warehouse = new Warehouse(id, request.Name, request.City, request.Address, request.Priority);
 
         _warehouses[id] = warehouse;
 
-        return Task.FromResult(warehouse);
+        return Task.FromResult(ToResponse(warehouse));
     }
 
     /// <inheritdoc />
-    public Task<bool> UpdateAsync(int id, UpdateWarehouseRequest request, CancellationToken cancellationToken = default)
+    public Task<bool> UpdateAsync(Guid id, UpdateWarehouseRequest request, CancellationToken cancellationToken = default)
     {
-        if (!_warehouses.ContainsKey(id))
+        cancellationToken.ThrowIfCancellationRequested();
+        if (!_warehouses.TryGetValue(id, out var current))
         {
             return Task.FromResult(false);
         }
 
-        var updated = new WarehouseResponse(id, request.Name, request.City, request.Address, request.Priority);
-        _warehouses[id] = updated;
-
-        return Task.FromResult(true);
+        var updated = new Warehouse(id, request.Name, request.City, request.Address, request.Priority);
+        return Task.FromResult(_warehouses.TryUpdate(id, updated, current));
     }
 
     /// <inheritdoc />
-    public Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
+    public Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        bool removed = _warehouses.TryRemove(id, out _);
-        return Task.FromResult(removed);
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult(_warehouses.TryRemove(id, out _));
     }
+
+    private static WarehouseResponse ToResponse(Warehouse warehouse) =>
+        new(warehouse.Id, warehouse.Name, warehouse.City, warehouse.Address, warehouse.Priority);
+
+    private sealed record Warehouse(Guid Id, string Name, string City, string Address, int Priority);
 }

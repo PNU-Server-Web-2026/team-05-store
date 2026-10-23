@@ -21,7 +21,7 @@ public class WarehousesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     [Fact]
     public async Task GetById_ReturnsNotFound_WhenWarehouseDoesNotExist()
     {
-        int nonExistentId = 999999;
+        var nonExistentId = Guid.NewGuid();
         var response = await _client.GetAsync($"/api/warehouses/{nonExistentId}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -43,7 +43,7 @@ public class WarehousesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
 
         var created = await response.Content.ReadFromJsonAsync<WarehouseResponse>();
         Assert.NotNull(created);
-        Assert.True(created.Id > 0);
+        Assert.NotEqual(Guid.Empty, created.Id);
         Assert.Equal(request.Name, created.Name);
         Assert.Equal(request.City, created.City);
         Assert.Equal(request.Address, created.Address);
@@ -109,7 +109,7 @@ public class WarehousesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     [Fact]
     public async Task Update_ReturnsNotFound_WhenWarehouseDoesNotExist()
     {
-        int nonExistentId = 888888;
+        var nonExistentId = Guid.NewGuid();
         var updateRequest = new UpdateWarehouseRequest(
             Name: "Фантомний склад",
             City: "Київ",
@@ -145,7 +145,7 @@ public class WarehousesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     [Fact]
     public async Task Delete_ReturnsNotFound_WhenWarehouseDoesNotExist()
     {
-        int nonExistentId = 777777;
+        var nonExistentId = Guid.NewGuid();
         var response = await _client.DeleteAsync($"/api/warehouses/{nonExistentId}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);

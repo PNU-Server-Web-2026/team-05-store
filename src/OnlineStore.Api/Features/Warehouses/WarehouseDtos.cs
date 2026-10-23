@@ -35,7 +35,7 @@ public sealed record UpdateWarehouseRequest(
 /// <param name="Address">Адреса складу.</param>
 /// <param name="Priority">Пріоритет резервування.</param>
 public sealed record WarehouseResponse(
-    int Id,
+    Guid Id,
     string Name,
     string City,
     string Address,

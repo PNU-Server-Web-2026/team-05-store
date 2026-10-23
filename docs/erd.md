@@ -302,5 +302,6 @@ erDiagram
 
 ## Статус погодження
 
-- [x] Дві діаграми, PUT/journal, `ProductName`, `OrderId` — коментар викладача в PR #91
-- [ ] Фінальний approve після виправлення кардинальності та синтаксису Mermaid (цей коміт)
+- [x] Дві діаграми, PUT/journal, `ProductName`, `OrderId` — погоджено викладачем (коментар у PR #91)
+- [x] Requested changes: кардинальність Mermaid, синтаксис полів, `EdrpouCode`, наскрізні механізми, `Guid` у S2 — виправлено на гілці `feat/5/erd`
+- [ ] Повторний **Approve** викладача на актуальному head після виправлень (peer: Danyleichuk-Vladyslav)

@@ -1,6 +1,7 @@
 using OnlineStore.Api.Data;
 using OnlineStore.Api.Features.Categories;
 using OnlineStore.Api.Features.Health;
+using OnlineStore.Api.Features.Products;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Scalar.AspNetCore;
@@ -27,6 +28,7 @@ builder.Services.AddOpenApi(options =>
 });
 builder.Services.AddHealthFeature();
 builder.Services.AddCategoriesFeature();
+builder.Services.AddProductsFeature();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));

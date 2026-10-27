@@ -99,18 +99,18 @@ erDiagram
     Category |o--o{ Category : parent
     Category ||--o{ Product : contains
     Supplier |o--o{ Product : supplies
-    Customer |o--o{ Order : places
+    Customer ||--o{ Order : places
     Order ||--o{ OrderItem : has
-    Product |o--o{ OrderItem : line
-    Product |o--o{ Stock : on_hand
-    Warehouse |o--o{ Stock : holds
-    Product |o--o{ StockMovement : movement
-    Warehouse |o--o{ StockMovement : movement
+    Product ||--o{ OrderItem : line
+    Product ||--o{ Stock : on_hand
+    Warehouse ||--o{ Stock : holds
+    Product ||--o{ StockMovement : movement
+    Warehouse ||--o{ StockMovement : movement
     Supplier |o--o{ StockMovement : receipt
     Order |o--o{ StockMovement : "Sale Return"
     PromoCode |o--o{ Order : discount
     Customer |o--o| User : "UserId nullable UK"
-    Product |o--o{ ProductImage : photos
+    Product ||--o{ ProductImage : photos
 
     Stock {
         uuid ProductId PK, FK
@@ -304,4 +304,5 @@ erDiagram
 
 - [x] Дві діаграми, PUT/journal, `ProductName`, `OrderId` — погоджено викладачем (коментар у PR #91)
 - [x] Requested changes: кардинальність Mermaid, синтаксис полів, `EdrpouCode`, наскрізні механізми, `Guid` у S2 — виправлено на гілці `feat/5/erd`
-- [ ] Повторний **Approve** викладача на актуальному head після виправлень (peer: Danyleichuk-Vladyslav)
+- [x] Цільова модель: `||` з боку батька для обовʼязкових FK (рядки 102–108, 113) — за рев’ю 27.10
+- [ ] Re-review: **DrFaust555**, peer **Danyleichuk-Vladyslav** (після цього коміту)

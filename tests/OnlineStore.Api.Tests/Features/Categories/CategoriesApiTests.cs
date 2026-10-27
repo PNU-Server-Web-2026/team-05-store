@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using OnlineStore.Api.Features.Categories;
 
 namespace OnlineStore.Api.Tests.Features.Categories;
 
@@ -124,10 +125,4 @@ public class CategoriesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         var suffix = Guid.NewGuid().ToString("N")[..8];
         return new CreateCategoryRequest($"Phones {suffix}", $"smart-phones-{suffix}", "Mobile phones");
     }
-
-    private sealed record CreateCategoryRequest(string Name, string Slug, string? Description);
-
-    private sealed record UpdateCategoryRequest(string Name, string Slug, string? Description);
-
-    private sealed record CategoryResponse(Guid Id, string Name, string Slug, string? Description);
 }

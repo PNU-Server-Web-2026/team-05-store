@@ -7,6 +7,9 @@ namespace OnlineStore.Api.Data;
 /// </summary>
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
+    /// <summary>Test-infra table for Respawn reset checks (issue #6).</summary>
+    public DbSet<IntegrationResetProbe> IntegrationResetProbes => Set<IntegrationResetProbe>();
+
     // Сутності (DbSet<T>) додаються в задачах, наприклад:
     // public DbSet<Hotel> Hotels => Set<Hotel>();
 

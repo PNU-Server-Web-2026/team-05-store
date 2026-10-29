@@ -2,15 +2,16 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using OnlineStore.Api.Tests.Infrastructure;
 
 namespace OnlineStore.Api.Tests.Features.OpenApi;
 
-public class OpenApiDocumentationTests(ApiFactory factory) : IClassFixture<ApiFactory>
+public sealed class OpenApiDocumentationTests(ApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]
     public async Task Development_OpenApiDocument_HasInfoAndXmlComments()
     {
-        await using var customized = factory.WithWebHostBuilder(builder => builder.UseEnvironment("Development"));
+        await using var customized = Factory.WithWebHostBuilder(builder => builder.UseEnvironment("Development"));
         var client = customized.CreateClient();
 
         var response = await client.GetAsync("/openapi/v1.json");
@@ -46,7 +47,7 @@ public class OpenApiDocumentationTests(ApiFactory factory) : IClassFixture<ApiFa
     [Fact]
     public async Task Development_ScalarUi_ReturnsHtml()
     {
-        await using var customized = factory.WithWebHostBuilder(builder => builder.UseEnvironment("Development"));
+        await using var customized = Factory.WithWebHostBuilder(builder => builder.UseEnvironment("Development"));
         var client = customized.CreateClient();
 
         var response = await client.GetAsync("/scalar");
@@ -58,7 +59,7 @@ public class OpenApiDocumentationTests(ApiFactory factory) : IClassFixture<ApiFa
     [Fact]
     public async Task Production_DoesNotPublishOpenApiOrScalar()
     {
-        await using var customized = factory.WithWebHostBuilder(builder => builder.UseEnvironment("Production"));
+        await using var customized = Factory.WithWebHostBuilder(builder => builder.UseEnvironment("Production"));
         var client = customized.CreateClient();
 
         var openApi = await client.GetAsync("/openapi/v1.json");

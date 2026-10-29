@@ -1,17 +1,15 @@
 using System.Net;
-using System.Net.Http.Json;
 using System.Text.Json;
+using OnlineStore.Api.Tests.Infrastructure;
 
 namespace OnlineStore.Api.Tests.Features.Health;
 
-public class HealthTests(ApiFactory factory) : IClassFixture<ApiFactory>
+public sealed class HealthTests(ApiFactory factory) : IntegrationTestBase(factory)
 {
-    private readonly HttpClient _client = factory.CreateClient();
-
     [Fact]
     public async Task Get_Health_ReturnsOkWithHealthyStatus()
     {
-        var response = await _client.GetAsync("/health");
+        var response = await Client.GetAsync("/health");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);

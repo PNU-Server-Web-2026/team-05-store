@@ -40,7 +40,7 @@ dotnet tool restore
 # 4. Запустити API
 dotnet run --project src/OnlineStore.Api
 
-# 5. Запустити тести
+# 5. Запустити тести (потрібен **Docker** — Testcontainers піднімає PostgreSQL)
 dotnet test
 ```
 
@@ -60,6 +60,52 @@ dotnet ef database update --project src/OnlineStore.Api
 ```
 
 Правила роботи з міграціями в команді — у [CONTRIBUTING.md](CONTRIBUTING.md#міграції-ef-core).
+
+### Тестування
+
+#### Передумови
+
+- **.NET SDK 10** (`dotnet --version` → `10.0.x`)
+- **Запущений Docker** (Docker Desktop, Colima, Rancher Desktop тощо). Testcontainers сам піднімає PostgreSQL; окремий `docker compose up db` для тестів **не потрібен**.
+
+#### Команди
+
+```bash
+dotnet test
+dotnet test --filter "FullyQualifiedName~PingTests"
+dotnet test -c Release --no-build
+```
+
+#### Як це працює
+
+1. **`IntegrationTestCollection`** + **`ICollectionFixture<ApiFactory>`** — один контейнер **`postgres:17-alpine`** на весь прогін `dotnet test`.
+2. **`ApiFactory.InitializeAsync`** — старт контейнера, **`Database.MigrateAsync()`** (не `EnsureCreated`), ініціалізація **Respawn** (ігнорує `__EFMigrationsHistory`).
+3. **`IntegrationTestBase.InitializeAsync`** перед **кожним** тестом викликає **`ResetDatabaseAsync()`** — таблиці очищаються, міграції лишаються.
+4. Рядок підключення підміняється через **`ConnectionStrings:Default`** і **`ConfigureTestServices`** для `AppDbContext`.
+
+#### Новий інтеграційний тест
+
+```csharp
+public sealed class MyFeatureTests(ApiFactory factory) : IntegrationTestBase(factory)
+{
+    [Fact]
+    public async Task Example()
+    {
+        var response = await Client.GetAsync("/api/...");
+        response.EnsureSuccessStatusCode();
+    }
+}
+```
+
+#### Troubleshooting
+
+| Проблема | Що робити |
+|----------|-----------|
+| `Docker is either not running or misconfigured` | Запустіть Docker Desktop / daemon |
+| Довгий перший прогін | Testcontainers качає образ `postgres:17-alpine` |
+| WSL / Colima | Перевірте `DOCKER_HOST`, за потреби `TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE` (див. [Testcontainers config](https://dotnet.testcontainers.org/custom_configuration/)) |
+
+Seed-даних (`HasData`) у міграціях зараз **немає** — Respawn чистить усі таблиці в `public`, крім `__EFMigrationsHistory`.
 
 ### Рядок підключення
 

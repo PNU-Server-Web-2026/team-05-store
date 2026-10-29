@@ -1,16 +1,15 @@
 using System.Net;
 using System.Net.Http.Json;
+using OnlineStore.Api.Tests.Infrastructure;
 
 namespace OnlineStore.Api.Tests.Features.Ping;
 
-public class PingTests(ApiFactory factory) : IClassFixture<ApiFactory>
+public sealed class PingTests(ApiFactory factory) : IntegrationTestBase(factory)
 {
-    private readonly HttpClient _client = factory.CreateClient();
-
     [Fact]
     public async Task Get_ReturnsOkWithPong()
     {
-        var response = await _client.GetAsync("/api/ping");
+        var response = await Client.GetAsync("/api/ping");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 

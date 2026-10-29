@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using OnlineStore.Api.Features.Categories;
 
 namespace OnlineStore.Api.Data;
 
@@ -7,8 +8,7 @@ namespace OnlineStore.Api.Data;
 /// </summary>
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    // Сутності (DbSet<T>) додаються в задачах, наприклад:
-    // public DbSet<Hotel> Hotels => Set<Hotel>();
+    public DbSet<Category> Categories => Set<Category>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -11,11 +11,14 @@ public class ProductsApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     [Fact]
     public async Task GetAll_ReturnsOkWithArray()
     {
+        var created = await CreateAsync();
+
         var response = await _client.GetAsync("/api/products");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<List<ProductResponse>>();
         Assert.NotNull(body);
+        Assert.Contains(body, product => product.Id == created.Id);
     }
 
     [Fact]

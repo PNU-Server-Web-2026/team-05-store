@@ -10,7 +10,7 @@ public sealed class InMemoryProductService : IProductService
     {
         cancellationToken.ThrowIfCancellationRequested();
         IReadOnlyList<ProductResponse> result = _items.Values
-            .OrderBy(product => product.Id)
+            .OrderBy(product => product.Name)
             .Select(ToResponse)
             .ToArray();
         return Task.FromResult(result);
@@ -39,13 +39,19 @@ public sealed class InMemoryProductService : IProductService
     public Task<bool> UpdateAsync(Guid id, UpdateProductRequest request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (!_items.TryGetValue(id, out var current))
+        while (true)
         {
-            return Task.FromResult(false);
-        }
+            if (!_items.TryGetValue(id, out var current))
+            {
+                return Task.FromResult(false);
+            }
 
-        var updated = new Product(id, request.Name, request.Sku, request.Price, request.Description, request.IsActive);
-        return Task.FromResult(_items.TryUpdate(id, updated, current));
+            var updated = new Product(id, request.Name, request.Sku, request.Price, request.Description, request.IsActive);
+            if (_items.TryUpdate(id, updated, current))
+            {
+                return Task.FromResult(true);
+            }
+        }
     }
 
     public Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)

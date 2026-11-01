@@ -1,17 +1,17 @@
 using System.Net;
 using System.Net.Http.Json;
 using OnlineStore.Api.Features.Categories;
+using OnlineStore.Api.Tests.Infrastructure;
 
 namespace OnlineStore.Api.Tests.Features.Categories;
 
-public class CategoriesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
+public sealed class CategoriesApiTests(ApiFactory factory) : IntegrationTestBase(factory)
 {
-    private readonly HttpClient _client = factory.CreateClient();
 
     [Fact]
     public async Task GetAll_ReturnsOkWithArray()
     {
-        var response = await _client.GetAsync("/api/categories");
+        var response = await Client.GetAsync("/api/categories");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<List<CategoryResponse>>();
@@ -23,7 +23,7 @@ public class CategoriesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     {
         var created = await CreateAsync();
 
-        var response = await _client.GetAsync($"/api/categories/{created.Id}");
+        var response = await Client.GetAsync($"/api/categories/{created.Id}");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<CategoryResponse>();
@@ -37,7 +37,7 @@ public class CategoriesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     [Fact]
     public async Task GetById_ReturnsNotFound_WhenMissing()
     {
-        var response = await _client.GetAsync($"/api/categories/{Guid.NewGuid()}");
+        var response = await Client.GetAsync($"/api/categories/{Guid.NewGuid()}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -47,7 +47,7 @@ public class CategoriesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     {
         var request = NewRequest();
 
-        var response = await _client.PostAsJsonAsync("/api/categories", request);
+        var response = await Client.PostAsJsonAsync("/api/categories", request);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<CategoryResponse>();
@@ -59,7 +59,7 @@ public class CategoriesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         Assert.NotNull(response.Headers.Location);
         Assert.Equal($"/api/categories/{body.Id}", response.Headers.Location.AbsolutePath);
 
-        var followUp = await _client.GetAsync(response.Headers.Location);
+        var followUp = await Client.GetAsync(response.Headers.Location);
         Assert.Equal(HttpStatusCode.OK, followUp.StatusCode);
     }
 
@@ -69,11 +69,11 @@ public class CategoriesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         var created = await CreateAsync();
         var request = new UpdateCategoryRequest("Updated name", created.Slug, "Updated description");
 
-        var response = await _client.PutAsJsonAsync($"/api/categories/{created.Id}", request);
+        var response = await Client.PutAsJsonAsync($"/api/categories/{created.Id}", request);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
-        var get = await _client.GetAsync($"/api/categories/{created.Id}");
+        var get = await Client.GetAsync($"/api/categories/{created.Id}");
         var body = await get.Content.ReadFromJsonAsync<CategoryResponse>();
         Assert.NotNull(body);
         Assert.Equal(request.Name, body.Name);
@@ -85,7 +85,7 @@ public class CategoriesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     {
         var request = new UpdateCategoryRequest("Missing", "missing", "none");
 
-        var response = await _client.PutAsJsonAsync($"/api/categories/{Guid.NewGuid()}", request);
+        var response = await Client.PutAsJsonAsync($"/api/categories/{Guid.NewGuid()}", request);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -95,25 +95,25 @@ public class CategoriesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     {
         var created = await CreateAsync();
 
-        var response = await _client.DeleteAsync($"/api/categories/{created.Id}");
+        var response = await Client.DeleteAsync($"/api/categories/{created.Id}");
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
-        var get = await _client.GetAsync($"/api/categories/{created.Id}");
+        var get = await Client.GetAsync($"/api/categories/{created.Id}");
         Assert.Equal(HttpStatusCode.NotFound, get.StatusCode);
     }
 
     [Fact]
     public async Task Delete_ReturnsNotFound_WhenMissing()
     {
-        var response = await _client.DeleteAsync($"/api/categories/{Guid.NewGuid()}");
+        var response = await Client.DeleteAsync($"/api/categories/{Guid.NewGuid()}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     private async Task<CategoryResponse> CreateAsync()
     {
-        var response = await _client.PostAsJsonAsync("/api/categories", NewRequest());
+        var response = await Client.PostAsJsonAsync("/api/categories", NewRequest());
         response.EnsureSuccessStatusCode();
         var body = await response.Content.ReadFromJsonAsync<CategoryResponse>();
         Assert.NotNull(body);

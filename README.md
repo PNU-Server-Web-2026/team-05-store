@@ -31,8 +31,11 @@
 # 1. (Необов'язково) власні налаштування БД
 cp .env.example .env
 
-# 2. Запустити PostgreSQL у Docker
+# 2. Запустити PostgreSQL у Docker (лише база)
 docker compose up -d db
+
+#    Або база + pgAdmin (профіль tools)
+#    docker compose --profile tools up -d
 
 # 3. Відновити локальні інструменти (dotnet-ef)
 dotnet tool restore
@@ -48,6 +51,30 @@ dotnet test
 
 - http://localhost:5080/api/ping → `{"message":"pong","utc":"..."}`
 - http://localhost:5080/openapi/v1.json → OpenAPI-документ (лише в середовищі Development)
+
+### PostgreSQL і pgAdmin
+
+Паролі та порти беруться з `.env` (зразок — `.env.example`). Файл `.env` у git не потрапляє.
+
+```bash
+# лише PostgreSQL (дані в volume db-data)
+docker compose up -d db
+
+# PostgreSQL + pgAdmin
+docker compose --profile tools up -d
+```
+
+- pgAdmin: http://localhost:5050 (якщо не змінювали `PGADMIN_PORT`)
+- вхід: `PGADMIN_DEFAULT_EMAIL` / `PGADMIN_DEFAULT_PASSWORD` з `.env`
+- сервер **online_store** уже в списку (файл `docker/pgadmin/servers.json`): Host `db`, база `online_store`
+- пароль до Postgres при першому підключенні — `POSTGRES_PASSWORD` з `.env` (у `servers.json` паролів немає)
+
+Без профілю `tools` pgAdmin не стартує: звичайний `docker compose up -d db` лише піднімає базу.
+
+```bash
+docker compose --profile tools down      # зупинити, дані лишаються
+docker compose --profile tools down -v  # УВАГА: видаляє volumes з даними
+```
 
 ### Міграції EF Core
 
@@ -129,7 +156,9 @@ dotnet user-secrets set "ConnectionStrings:Default" "Host=...;..." --project src
 ├── Directory.Build.props          # спільні налаштування збірки (net10.0, nullable, warnings as errors)
 ├── Directory.Packages.props       # версії всіх NuGet-пакетів (Central Package Management)
 ├── .config/dotnet-tools.json      # локальні інструменти (dotnet-ef)
-├── docker-compose.yml             # PostgreSQL для локальної розробки
+├── docker-compose.yml             # PostgreSQL і pgAdmin (профіль tools) для локальної розробки
+├── docker/pgadmin/servers.json    # автореєстрація сервера db у pgAdmin
+├── .env.example                   # зразок змінних; скопіюйте в .env (не комітиться)
 ├── src/
 │   └── OnlineStore.Api/
 │       ├── Program.cs             # точка входу, реєстрація сервісів і конвеєр HTTP

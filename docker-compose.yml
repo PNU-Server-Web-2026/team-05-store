@@ -1,7 +1,8 @@
 # Локальне оточення для розробки.
-# Запуск БД:   docker compose up -d db
-# Зупинка:     docker compose down        (дані зберігаються у volume)
-# Скинути БД:  docker compose down -v     (УВАГА: видаляє всі дані)
+# Запуск БД:          docker compose up -d db
+# БД + pgAdmin:       docker compose --profile tools up -d
+# Зупинка:            docker compose --profile tools down        (дані зберігаються у volume)
+# Скинути БД:         docker compose --profile tools down -v    (УВАГА: видаляє всі дані)
 #
 # Значення змінних беруться з файлу .env (скопіюйте .env.example -> .env),
 # а якщо .env немає — використовуються значення за замовчуванням нижче.
@@ -26,5 +27,23 @@ services:
       retries: 10
       start_period: 10s
 
+  pgadmin:
+    image: dpage/pgadmin4:9
+    container_name: online_store_pgadmin
+    profiles: [tools]
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@example.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    volumes:
+      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro
+      - pgadmin-data:/var/lib/pgadmin
+
 volumes:
   db-data:
+  pgadmin-data:

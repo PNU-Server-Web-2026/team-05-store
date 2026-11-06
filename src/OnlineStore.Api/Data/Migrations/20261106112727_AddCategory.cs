@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace OnlineStore.Api.Migrations
+namespace OnlineStore.Api.Data.Migrations
 {
     /// <inheritdoc />
     public partial class AddCategory : Migration

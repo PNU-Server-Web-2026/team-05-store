@@ -1,19 +1,19 @@
 using System.Net;
 using System.Net.Http.Json;
 using OnlineStore.Api.Features.Products;
+using OnlineStore.Api.Tests.Infrastructure;
 
 namespace OnlineStore.Api.Tests.Features.Products;
 
-public class ProductsApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
+public sealed class ProductsApiTests(ApiFactory factory) : IntegrationTestBase(factory)
 {
-    private readonly HttpClient _client = factory.CreateClient();
 
     [Fact]
     public async Task GetAll_ReturnsOkWithArray()
     {
         var created = await CreateAsync();
 
-        var response = await _client.GetAsync("/api/products");
+        var response = await Client.GetAsync("/api/products");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<List<ProductResponse>>();
@@ -26,7 +26,7 @@ public class ProductsApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     {
         var created = await CreateAsync();
 
-        var response = await _client.GetAsync($"/api/products/{created.Id}");
+        var response = await Client.GetAsync($"/api/products/{created.Id}");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<ProductResponse>();
@@ -42,7 +42,7 @@ public class ProductsApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     [Fact]
     public async Task GetById_ReturnsNotFound_WhenMissing()
     {
-        var response = await _client.GetAsync($"/api/products/{Guid.NewGuid()}");
+        var response = await Client.GetAsync($"/api/products/{Guid.NewGuid()}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -52,7 +52,7 @@ public class ProductsApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     {
         var request = NewRequest();
 
-        var response = await _client.PostAsJsonAsync("/api/products", request);
+        var response = await Client.PostAsJsonAsync("/api/products", request);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<ProductResponse>();
@@ -66,7 +66,7 @@ public class ProductsApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         Assert.NotNull(response.Headers.Location);
         Assert.Equal($"/api/products/{body.Id}", response.Headers.Location.AbsolutePath);
 
-        var followUp = await _client.GetAsync(response.Headers.Location);
+        var followUp = await Client.GetAsync(response.Headers.Location);
         Assert.Equal(HttpStatusCode.OK, followUp.StatusCode);
     }
 
@@ -76,11 +76,11 @@ public class ProductsApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         var created = await CreateAsync();
         var request = new UpdateProductRequest("Updated name", created.Sku, 199.99m, "Updated description", false);
 
-        var response = await _client.PutAsJsonAsync($"/api/products/{created.Id}", request);
+        var response = await Client.PutAsJsonAsync($"/api/products/{created.Id}", request);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
-        var get = await _client.GetAsync($"/api/products/{created.Id}");
+        var get = await Client.GetAsync($"/api/products/{created.Id}");
         var body = await get.Content.ReadFromJsonAsync<ProductResponse>();
         Assert.NotNull(body);
         Assert.Equal(request.Name, body.Name);
@@ -94,7 +94,7 @@ public class ProductsApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     {
         var request = new UpdateProductRequest("Missing", "MISSING-1", 10m, "none", true);
 
-        var response = await _client.PutAsJsonAsync($"/api/products/{Guid.NewGuid()}", request);
+        var response = await Client.PutAsJsonAsync($"/api/products/{Guid.NewGuid()}", request);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -104,25 +104,25 @@ public class ProductsApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     {
         var created = await CreateAsync();
 
-        var response = await _client.DeleteAsync($"/api/products/{created.Id}");
+        var response = await Client.DeleteAsync($"/api/products/{created.Id}");
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
-        var get = await _client.GetAsync($"/api/products/{created.Id}");
+        var get = await Client.GetAsync($"/api/products/{created.Id}");
         Assert.Equal(HttpStatusCode.NotFound, get.StatusCode);
     }
 
     [Fact]
     public async Task Delete_ReturnsNotFound_WhenMissing()
     {
-        var response = await _client.DeleteAsync($"/api/products/{Guid.NewGuid()}");
+        var response = await Client.DeleteAsync($"/api/products/{Guid.NewGuid()}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     private async Task<ProductResponse> CreateAsync()
     {
-        var response = await _client.PostAsJsonAsync("/api/products", NewRequest());
+        var response = await Client.PostAsJsonAsync("/api/products", NewRequest());
         response.EnsureSuccessStatusCode();
         var body = await response.Content.ReadFromJsonAsync<ProductResponse>();
         Assert.NotNull(body);

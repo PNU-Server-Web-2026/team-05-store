@@ -28,7 +28,7 @@
 ## Швидкий старт
 
 ```bash
-# 1. (Необов'язково) власні налаштування БД
+# 1. Обов'язково: скопіювати секрети (паролі лише з .env)
 cp .env.example .env
 
 # 2. Запустити PostgreSQL у Docker (лише база)
@@ -54,7 +54,7 @@ dotnet test
 
 ### PostgreSQL і pgAdmin
 
-Паролі та порти беруться з `.env` (зразок — `.env.example`). Файл `.env` у git не потрапляє.
+Паролі беруться **лише** з `.env` (зразок — `.env.example`). Файл `.env` у git не потрапляє. Без `POSTGRES_PASSWORD` і `PGADMIN_DEFAULT_PASSWORD` Compose не стартує.
 
 ```bash
 # лише PostgreSQL (дані в volume db-data)

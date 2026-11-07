@@ -4,7 +4,7 @@ namespace OnlineStore.Api.Features.Categories;
 
 public sealed class InMemoryCategoryService : ICategoryService
 {
-    private readonly ConcurrentDictionary<Guid, Category> _items = new();
+    private readonly ConcurrentDictionary<Guid, StoredCategory> _items = new();
 
     public Task<IReadOnlyList<CategoryResponse>> GetAllAsync(CancellationToken cancellationToken)
     {
@@ -31,7 +31,7 @@ public sealed class InMemoryCategoryService : ICategoryService
     {
         cancellationToken.ThrowIfCancellationRequested();
         var id = Guid.NewGuid();
-        var category = new Category(id, request.Name, request.Slug, request.Description);
+        var category = new StoredCategory(id, request.Name, request.Slug, request.Description);
         _items[id] = category;
         return Task.FromResult(ToResponse(category));
     }
@@ -44,7 +44,7 @@ public sealed class InMemoryCategoryService : ICategoryService
             return Task.FromResult(false);
         }
 
-        var updated = new Category(id, request.Name, request.Slug, request.Description);
+        var updated = new StoredCategory(id, request.Name, request.Slug, request.Description);
         return Task.FromResult(_items.TryUpdate(id, updated, current));
     }
 
@@ -54,8 +54,8 @@ public sealed class InMemoryCategoryService : ICategoryService
         return Task.FromResult(_items.TryRemove(id, out _));
     }
 
-    private static CategoryResponse ToResponse(Category category) =>
+    private static CategoryResponse ToResponse(StoredCategory category) =>
         new(category.Id, category.Name, category.Slug, category.Description);
 
-    private sealed record Category(Guid Id, string Name, string Slug, string? Description);
+    private sealed record StoredCategory(Guid Id, string Name, string Slug, string? Description);
 }

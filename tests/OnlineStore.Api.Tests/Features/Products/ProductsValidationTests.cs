@@ -10,7 +10,7 @@ public sealed class ProductsValidationTests(ApiFactory factory) : IntegrationTes
     [Fact]
     public async Task Post_WhenNameMissing_ReturnsValidationProblemForName()
     {
-        var request = new CreateProductRequest("", "SKU-1", 10m, null, true);
+        var request = new CreateProductRequest { Name = "", Sku = "SKU-1", Price = 10m, IsActive = true };
 
         var response = await Client.PostAsJsonAsync("/api/products", request);
 
@@ -20,7 +20,7 @@ public sealed class ProductsValidationTests(ApiFactory factory) : IntegrationTes
     [Fact]
     public async Task Post_WhenSkuHasLowercase_ReturnsValidationProblemForSku()
     {
-        var request = new CreateProductRequest("Phone", "phone-1", 10m, null, true);
+        var request = new CreateProductRequest { Name = "Phone", Sku = "phone-1", Price = 10m, IsActive = true };
 
         var response = await Client.PostAsJsonAsync("/api/products", request);
 
@@ -30,7 +30,7 @@ public sealed class ProductsValidationTests(ApiFactory factory) : IntegrationTes
     [Fact]
     public async Task Post_WhenPriceIsZero_ReturnsValidationProblemForPrice()
     {
-        var request = new CreateProductRequest("Phone", "PHONE-1", 0m, null, true);
+        var request = new CreateProductRequest { Name = "Phone", Sku = "PHONE-1", Price = 0m, IsActive = true };
 
         var response = await Client.PostAsJsonAsync("/api/products", request);
 
@@ -40,7 +40,7 @@ public sealed class ProductsValidationTests(ApiFactory factory) : IntegrationTes
     [Fact]
     public async Task Post_WhenPriceExceedsMaximum_ReturnsValidationProblemForPrice()
     {
-        var request = new CreateProductRequest("Phone", "PHONE-1", 1_000_000.01m, null, true);
+        var request = new CreateProductRequest { Name = "Phone", Sku = "PHONE-1", Price = 1_000_000.01m, IsActive = true };
 
         var response = await Client.PostAsJsonAsync("/api/products", request);
 
@@ -50,7 +50,7 @@ public sealed class ProductsValidationTests(ApiFactory factory) : IntegrationTes
     [Fact]
     public async Task Post_WhenPriceHasTooManyDecimalPlaces_ReturnsValidationProblemForPrice()
     {
-        var request = new CreateProductRequest("Phone", "PHONE-1", 9.999m, null, true);
+        var request = new CreateProductRequest { Name = "Phone", Sku = "PHONE-1", Price = 9.999m, IsActive = true };
 
         var response = await Client.PostAsJsonAsync("/api/products", request);
 
@@ -61,7 +61,14 @@ public sealed class ProductsValidationTests(ApiFactory factory) : IntegrationTes
     public async Task Put_WhenSkuInvalid_ReturnsValidationProblemForSku()
     {
         var created = await CreateAsync();
-        var request = new UpdateProductRequest(created.Name, "bad_sku", created.Price, created.Description, created.IsActive);
+        var request = new UpdateProductRequest
+        {
+            Name = created.Name,
+            Sku = "bad_sku",
+            Price = created.Price,
+            Description = created.Description,
+            IsActive = created.IsActive
+        };
 
         var response = await Client.PutAsJsonAsync($"/api/products/{created.Id}", request);
 
@@ -73,7 +80,13 @@ public sealed class ProductsValidationTests(ApiFactory factory) : IntegrationTes
         var suffix = Guid.NewGuid().ToString("N")[..8].ToUpperInvariant();
         var response = await Client.PostAsJsonAsync(
             "/api/products",
-            new CreateProductRequest($"Phone {suffix}", $"PHONE-{suffix}", 99.99m, null, true));
+            new CreateProductRequest
+            {
+                Name = $"Phone {suffix}",
+                Sku = $"PHONE-{suffix}",
+                Price = 99.99m,
+                IsActive = true
+            });
         response.EnsureSuccessStatusCode();
         var body = await response.Content.ReadFromJsonAsync<ProductResponse>();
         Assert.NotNull(body);

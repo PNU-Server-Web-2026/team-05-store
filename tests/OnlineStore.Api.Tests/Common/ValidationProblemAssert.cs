@@ -19,7 +19,11 @@ internal static class ValidationProblemAssert
         var root = document.RootElement;
         Assert.Equal(400, root.GetProperty("status").GetInt32());
         Assert.True(root.TryGetProperty("errors", out var errors));
-        Assert.True(errors.TryGetProperty(fieldName, out var fieldErrors));
+
+        var camelName = char.ToLowerInvariant(fieldName[0]) + fieldName[1..];
+        var hasError = errors.TryGetProperty(fieldName, out var fieldErrors)
+            || errors.TryGetProperty(camelName, out fieldErrors);
+        Assert.True(hasError, $"Expected validation error for '{fieldName}' or '{camelName}'. Errors: {errors}");
         Assert.True(fieldErrors.GetArrayLength() > 0);
     }
 }

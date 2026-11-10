@@ -18,6 +18,16 @@ public sealed class CategoriesValidationTests(ApiFactory factory) : IntegrationT
     }
 
     [Fact]
+    public async Task Post_WhenSlugMissing_ReturnsValidationProblemForSlug()
+    {
+        var request = new CreateCategoryRequest { Name = "Phones", Slug = "" };
+
+        var response = await Client.PostAsJsonAsync("/api/categories", request);
+
+        await ValidationProblemAssert.AssertHasFieldErrorAsync(response, "Slug");
+    }
+
+    [Fact]
     public async Task Post_WhenSlugHasInvalidCharacters_ReturnsValidationProblemForSlug()
     {
         var request = new CreateCategoryRequest { Name = "Phones", Slug = "INVALID_slug" };

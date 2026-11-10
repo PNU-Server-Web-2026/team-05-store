@@ -18,6 +18,16 @@ public sealed class ProductsValidationTests(ApiFactory factory) : IntegrationTes
     }
 
     [Fact]
+    public async Task Post_WhenSkuMissing_ReturnsValidationProblemForSku()
+    {
+        var request = new CreateProductRequest { Name = "Phone", Sku = "", Price = 10m, IsActive = true };
+
+        var response = await Client.PostAsJsonAsync("/api/products", request);
+
+        await ValidationProblemAssert.AssertHasFieldErrorAsync(response, "Sku");
+    }
+
+    [Fact]
     public async Task Post_WhenSkuHasLowercase_ReturnsValidationProblemForSku()
     {
         var request = new CreateProductRequest { Name = "Phone", Sku = "phone-1", Price = 10m, IsActive = true };

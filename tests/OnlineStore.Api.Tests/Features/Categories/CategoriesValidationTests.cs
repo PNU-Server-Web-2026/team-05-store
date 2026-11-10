@@ -10,7 +10,7 @@ public sealed class CategoriesValidationTests(ApiFactory factory) : IntegrationT
     [Fact]
     public async Task Post_WhenNameMissing_ReturnsValidationProblemForName()
     {
-        var request = new CreateCategoryRequest("", "valid-slug", "desc");
+        var request = new CreateCategoryRequest { Name = "", Slug = "valid-slug", Description = "desc" };
 
         var response = await Client.PostAsJsonAsync("/api/categories", request);
 
@@ -20,7 +20,7 @@ public sealed class CategoriesValidationTests(ApiFactory factory) : IntegrationT
     [Fact]
     public async Task Post_WhenSlugHasInvalidCharacters_ReturnsValidationProblemForSlug()
     {
-        var request = new CreateCategoryRequest("Phones", "INVALID_slug", null);
+        var request = new CreateCategoryRequest { Name = "Phones", Slug = "INVALID_slug" };
 
         var response = await Client.PostAsJsonAsync("/api/categories", request);
 
@@ -31,7 +31,7 @@ public sealed class CategoriesValidationTests(ApiFactory factory) : IntegrationT
     public async Task Post_WhenSlugExceedsMaxLength_ReturnsValidationProblemForSlug()
     {
         var slug = new string('a', 101);
-        var request = new CreateCategoryRequest("Phones", slug, null);
+        var request = new CreateCategoryRequest { Name = "Phones", Slug = slug };
 
         var response = await Client.PostAsJsonAsync("/api/categories", request);
 
@@ -42,7 +42,12 @@ public sealed class CategoriesValidationTests(ApiFactory factory) : IntegrationT
     public async Task Put_WhenNameMissing_ReturnsValidationProblemForName()
     {
         var created = await CreateAsync();
-        var request = new UpdateCategoryRequest("", created.Slug, created.Description);
+        var request = new UpdateCategoryRequest
+        {
+            Name = "",
+            Slug = created.Slug,
+            Description = created.Description
+        };
 
         var response = await Client.PutAsJsonAsync($"/api/categories/{created.Id}", request);
 
@@ -53,7 +58,12 @@ public sealed class CategoriesValidationTests(ApiFactory factory) : IntegrationT
     public async Task Put_WhenSlugInvalid_ReturnsValidationProblemForSlug()
     {
         var created = await CreateAsync();
-        var request = new UpdateCategoryRequest(created.Name, "bad slug", created.Description);
+        var request = new UpdateCategoryRequest
+        {
+            Name = created.Name,
+            Slug = "bad slug",
+            Description = created.Description
+        };
 
         var response = await Client.PutAsJsonAsync($"/api/categories/{created.Id}", request);
 
@@ -65,7 +75,12 @@ public sealed class CategoriesValidationTests(ApiFactory factory) : IntegrationT
         var suffix = Guid.NewGuid().ToString("N")[..8];
         var response = await Client.PostAsJsonAsync(
             "/api/categories",
-            new CreateCategoryRequest($"Name {suffix}", $"slug-{suffix}", "desc"));
+            new CreateCategoryRequest
+            {
+                Name = $"Name {suffix}",
+                Slug = $"slug-{suffix}",
+                Description = "desc"
+            });
         response.EnsureSuccessStatusCode();
         var body = await response.Content.ReadFromJsonAsync<CategoryResponse>();
         Assert.NotNull(body);

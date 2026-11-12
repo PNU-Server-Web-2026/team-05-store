@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OnlineStore.Api.Features.Categories;
+using OnlineStore.Api.Features.Products;
 
 namespace OnlineStore.Api.Data;
 
@@ -12,6 +13,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<IntegrationResetProbe> IntegrationResetProbes => Set<IntegrationResetProbe>();
 
     public DbSet<Category> Categories => Set<Category>();
+
+    public DbSet<Product> Products => Set<Product>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

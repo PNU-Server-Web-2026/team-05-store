@@ -103,6 +103,19 @@ erDiagram
 | `Slug` | `character varying(100)` | NOT NULL |
 | `Description` | `character varying(1000)` | NULL |
 
+### Product (#19)
+
+Таблиця `Products` (міграція `AddProduct`). Поля з issue #19 і діаграми S1. Унікальний індекс `Sku` і check `Price > 0` — задача #29; `CategoryId` — #30; `SupplierId` — #31; global query filter для `IsActive` — #38.
+
+| Стовпець | Тип у PostgreSQL | Обмеження |
+|----------|------------------|-----------|
+| `Id` | `uuid` | PK |
+| `Name` | `character varying(200)` | NOT NULL |
+| `Sku` | `character varying(30)` | NOT NULL |
+| `Price` | `numeric(18,2)` | NOT NULL |
+| `Description` | `character varying(4000)` | NULL |
+| `IsActive` | `boolean` | NOT NULL |
+
 ---
 
 ## Цільова модель (TZ §2.2–2.3 + issues S4–S8)

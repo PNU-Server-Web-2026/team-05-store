@@ -4,7 +4,7 @@ namespace OnlineStore.Api.Features.Products;
 
 public sealed class InMemoryProductService : IProductService
 {
-    private readonly ConcurrentDictionary<Guid, Product> _items = new();
+    private readonly ConcurrentDictionary<Guid, StoredProduct> _items = new();
 
     public Task<IReadOnlyList<ProductResponse>> GetAllAsync(CancellationToken cancellationToken)
     {
@@ -31,7 +31,7 @@ public sealed class InMemoryProductService : IProductService
     {
         cancellationToken.ThrowIfCancellationRequested();
         var id = Guid.NewGuid();
-        var product = new Product(id, request.Name, request.Sku, request.Price, request.Description, request.IsActive);
+        var product = new StoredProduct(id, request.Name, request.Sku, request.Price, request.Description, request.IsActive);
         _items[id] = product;
         return Task.FromResult(ToResponse(product));
     }
@@ -46,7 +46,7 @@ public sealed class InMemoryProductService : IProductService
                 return Task.FromResult(false);
             }
 
-            var updated = new Product(id, request.Name, request.Sku, request.Price, request.Description, request.IsActive);
+            var updated = new StoredProduct(id, request.Name, request.Sku, request.Price, request.Description, request.IsActive);
             if (_items.TryUpdate(id, updated, current))
             {
                 return Task.FromResult(true);
@@ -60,10 +60,10 @@ public sealed class InMemoryProductService : IProductService
         return Task.FromResult(_items.TryRemove(id, out _));
     }
 
-    private static ProductResponse ToResponse(Product product) =>
+    private static ProductResponse ToResponse(StoredProduct product) =>
         new(product.Id, product.Name, product.Sku, product.Price, product.Description, product.IsActive);
 
-    private sealed record Product(
+    private sealed record StoredProduct(
         Guid Id,
         string Name,
         string Sku,

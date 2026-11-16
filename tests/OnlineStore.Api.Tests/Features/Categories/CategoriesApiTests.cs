@@ -67,7 +67,12 @@ public sealed class CategoriesApiTests(ApiFactory factory) : IntegrationTestBase
     public async Task Put_ReturnsNoContent_WhenCategoryExists()
     {
         var created = await CreateAsync();
-        var request = new UpdateCategoryRequest("Updated name", created.Slug, "Updated description");
+        var request = new UpdateCategoryRequest
+        {
+            Name = "Updated name",
+            Slug = created.Slug,
+            Description = "Updated description"
+        };
 
         var response = await Client.PutAsJsonAsync($"/api/categories/{created.Id}", request);
 
@@ -83,7 +88,7 @@ public sealed class CategoriesApiTests(ApiFactory factory) : IntegrationTestBase
     [Fact]
     public async Task Put_ReturnsNotFound_WhenMissing()
     {
-        var request = new UpdateCategoryRequest("Missing", "missing", "none");
+        var request = new UpdateCategoryRequest { Name = "Missing", Slug = "missing", Description = "none" };
 
         var response = await Client.PutAsJsonAsync($"/api/categories/{Guid.NewGuid()}", request);
 
@@ -123,6 +128,11 @@ public sealed class CategoriesApiTests(ApiFactory factory) : IntegrationTestBase
     private static CreateCategoryRequest NewRequest()
     {
         var suffix = Guid.NewGuid().ToString("N")[..8];
-        return new CreateCategoryRequest($"Phones {suffix}", $"smart-phones-{suffix}", "Mobile phones");
+        return new CreateCategoryRequest
+        {
+            Name = $"Phones {suffix}",
+            Slug = $"smart-phones-{suffix}",
+            Description = "Mobile phones"
+        };
     }
 }

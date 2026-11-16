@@ -2,31 +2,31 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OnlineStore.Api.Features.Categories;
 
-public sealed class CreateCategoryRequest
+public sealed record CreateCategoryRequest
 {
     [Required(AllowEmptyStrings = false)]
     [MaxLength(100)]
-    public required string Name { get; init; }
+    public string Name { get; init; } = default!;
 
     [Required(AllowEmptyStrings = false)]
     [MaxLength(100)]
     [RegularExpression(@"^[a-z0-9]+(?:-[a-z0-9]+)*$", ErrorMessage = "Slug must contain only lowercase letters, digits, and hyphens.")]
-    public required string Slug { get; init; }
+    public string Slug { get; init; } = default!;
 
     [MaxLength(1000)]
     public string? Description { get; init; }
 }
 
-public sealed class UpdateCategoryRequest
+public sealed record UpdateCategoryRequest
 {
     [Required(AllowEmptyStrings = false)]
     [MaxLength(100)]
-    public required string Name { get; init; }
+    public string Name { get; init; } = default!;
 
     [Required(AllowEmptyStrings = false)]
     [MaxLength(100)]
     [RegularExpression(@"^[a-z0-9]+(?:-[a-z0-9]+)*$", ErrorMessage = "Slug must contain only lowercase letters, digits, and hyphens.")]
-    public required string Slug { get; init; }
+    public string Slug { get; init; } = default!;
 
     [MaxLength(1000)]
     public string? Description { get; init; }

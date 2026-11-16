@@ -1,4 +1,11 @@
+using System.Globalization;
+using System.Net;
 using System.Net.Http.Json;
+using System.Text;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 using OnlineStore.Api.Features.Products;
 using OnlineStore.Api.Tests.Common;
 using OnlineStore.Api.Tests.Infrastructure;
@@ -25,6 +32,74 @@ public sealed class ProductsValidationTests(ApiFactory factory) : IntegrationTes
         var response = await Client.PostAsJsonAsync("/api/products", request);
 
         await ValidationProblemAssert.AssertHasFieldErrorAsync(response, "Sku");
+    }
+
+    [Fact]
+    public async Task Post_WhenNamePropertyOmitted_ReturnsValidationProblemForName()
+    {
+        var response = await PostJsonAsync("""{"sku":"PHONE-1","price":10,"isActive":true}""");
+
+        await ValidationProblemAssert.AssertHasFieldErrorAsync(response, "Name");
+    }
+
+    [Fact]
+    public async Task Post_WhenSkuPropertyOmitted_ReturnsValidationProblemForSku()
+    {
+        var response = await PostJsonAsync("""{"name":"Phone","price":10,"isActive":true}""");
+
+        await ValidationProblemAssert.AssertHasFieldErrorAsync(response, "Sku");
+    }
+
+    [Theory]
+    [InlineData("PHONE--1")]
+    [InlineData("PHONE-")]
+    public async Task Post_WhenSkuAllowsHyphenSegments_ReturnsCreated(string sku)
+    {
+        var suffix = Guid.NewGuid().ToString("N")[..6].ToUpperInvariant();
+        var request = new CreateProductRequest
+        {
+            Name = $"Phone {suffix}",
+            Sku = sku,
+            Price = 19.99m,
+            IsActive = true
+        };
+
+        var response = await Client.PostAsJsonAsync("/api/products", request);
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Post_WithUkCultureAndValidPrice_ReturnsCreated()
+    {
+        await using var ukFactory = Factory.WithWebHostBuilder(builder =>
+            builder.ConfigureTestServices(services =>
+                services.AddSingleton<IStartupFilter, UkCultureStartupFilter>()));
+
+        var client = ukFactory.CreateClient();
+        var suffix = Guid.NewGuid().ToString("N")[..8].ToUpperInvariant();
+        var request = new CreateProductRequest
+        {
+            Name = $"Phone {suffix}",
+            Sku = $"PHONE-{suffix}",
+            Price = 10.50m,
+            IsActive = true
+        };
+
+        var response = await client.PostAsJsonAsync("/api/products", request);
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Put_WhenNamePropertyOmitted_ReturnsValidationProblemForName()
+    {
+        var created = await CreateAsync();
+        var response = await PutJsonAsync(
+            created.Id,
+            $$"""{"sku":"{{created.Sku}}","price":10,"isActive":true}""");
+
+        await ValidationProblemAssert.AssertHasFieldErrorAsync(response, "Name");
     }
 
     [Fact]
@@ -84,6 +159,32 @@ public sealed class ProductsValidationTests(ApiFactory factory) : IntegrationTes
 
         await ValidationProblemAssert.AssertHasFieldErrorAsync(response, "Sku");
     }
+
+    private sealed class UkCultureStartupFilter : IStartupFilter
+    {
+        public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next) =>
+            app =>
+            {
+                app.Use(async (context, nextMiddleware) =>
+                {
+                    var culture = new CultureInfo("uk-UA");
+                    CultureInfo.CurrentCulture = culture;
+                    CultureInfo.CurrentUICulture = culture;
+                    await nextMiddleware();
+                });
+                next(app);
+            };
+    }
+
+    private Task<HttpResponseMessage> PostJsonAsync(string json) =>
+        Client.PostAsync(
+            "/api/products",
+            new StringContent(json, Encoding.UTF8, "application/json"));
+
+    private Task<HttpResponseMessage> PutJsonAsync(Guid id, string json) =>
+        Client.PutAsync(
+            $"/api/products/{id}",
+            new StringContent(json, Encoding.UTF8, "application/json"));
 
     private async Task<ProductResponse> CreateAsync()
     {

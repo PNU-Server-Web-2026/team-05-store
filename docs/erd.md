@@ -103,6 +103,18 @@ erDiagram
 | `Slug` | `character varying(100)` | NOT NULL |
 | `Description` | `character varying(1000)` | NULL |
 
+### Supplier (#25)
+
+Таблиця `Suppliers` (міграція `AddSupplier`). Поля з issue #25 і діаграми S1. Унікальний індекс `EdrpouCode` — задача #29; зв’язок з `Product` — #31.
+
+| Стовпець | Тип у PostgreSQL | Обмеження |
+|----------|------------------|-----------|
+| `Id` | `uuid` | PK |
+| `Name` | `character varying(200)` | NOT NULL |
+| `EdrpouCode` | `character varying(8)` | NOT NULL |
+| `Email` | `character varying(256)` | NULL |
+| `Phone` | `character varying(16)` | NULL |
+
 ---
 
 ## Цільова модель (TZ §2.2–2.3 + issues S4–S8)

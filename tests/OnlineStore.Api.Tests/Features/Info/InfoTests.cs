@@ -2,17 +2,16 @@ using System.Net;
 using System.Net.Http.Json;
 using OnlineStore.Api.Common;
 using OnlineStore.Api.Features.Info;
+using OnlineStore.Api.Tests.Infrastructure;
 
 namespace OnlineStore.Api.Tests.Features.Info;
 
-public class InfoTests(ApiFactory factory) : IClassFixture<ApiFactory>
+public sealed class InfoTests(ApiFactory factory) : IntegrationTestBase(factory)
 {
-    private readonly HttpClient _client = factory.CreateClient();
-
     [Fact]
     public async Task Get_ReturnsApiInfo()
     {
-        var response = await _client.GetAsync("/api/info");
+        var response = await Client.GetAsync("/api/info");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 

@@ -22,6 +22,23 @@ public sealed class ProductsApiTests(ApiFactory factory) : IntegrationTestBase(f
     }
 
     [Fact]
+    public async Task GetAll_AfterPost_ReturnsNewProduct_WhenCacheWasWarm()
+    {
+        // Прогріваємо output cache списку.
+        var warm = await Client.GetAsync("/api/products");
+        Assert.Equal(HttpStatusCode.OK, warm.StatusCode);
+
+        var created = await CreateAsync();
+
+        var response = await Client.GetAsync("/api/products");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<List<ProductResponse>>();
+        Assert.NotNull(body);
+        Assert.Contains(body, product => product.Id == created.Id);
+    }
+
+    [Fact]
     public async Task GetById_ReturnsOk_WhenProductExists()
     {
         var created = await CreateAsync();

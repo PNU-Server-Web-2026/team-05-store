@@ -44,6 +44,7 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+app.UseOutputCache();
 app.MapHealthFeature();
 app.MapControllers();
 

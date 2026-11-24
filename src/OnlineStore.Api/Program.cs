@@ -13,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 // у папці фічі (наприклад, builder.Services.AddHotelsFeature();), див. CONTRIBUTING.md.
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
+builder.Services.AddIpFixedWindowRateLimiting(builder.Configuration);
 builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer((document, context, cancellationToken) =>
@@ -36,8 +37,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();
 
-// HTTP-конвеєр. Correlation ID — першим, щоб був у всіх логах і відповідях.
+// HTTP-конвеєр. Correlation ID — першим; rate limiter читає політику з метаданих endpoint-ів.
 app.UseCorrelationId();
+app.UseRateLimiter();
 if (app.Environment.IsDevelopment())
 {
     // OpenAPI-документ: /openapi/v1.json
@@ -47,7 +49,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapHealthFeature();
-app.MapControllers();
+app.MapControllers().RequireIpRateLimiting();
 
 app.Run();
 

@@ -32,6 +32,10 @@ public sealed class CorrelationIdMiddleware
 
         using (_logger.BeginScope(new Dictionary<string, object> { [ItemKey] = correlationId }))
         {
+            _logger.LogInformation(
+                "HTTP {Method} {Path}",
+                context.Request.Method,
+                context.Request.Path);
             await _next(context);
         }
     }

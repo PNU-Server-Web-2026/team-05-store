@@ -39,13 +39,19 @@ public sealed class InMemorySupplierService : ISupplierService
     public Task<bool> UpdateAsync(Guid id, UpdateSupplierRequest request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (!_items.TryGetValue(id, out var current))
+        while (true)
         {
-            return Task.FromResult(false);
-        }
+            if (!_items.TryGetValue(id, out var current))
+            {
+                return Task.FromResult(false);
+            }
 
-        var updated = new StoredSupplier(id, request.Name, request.EdrpouCode, request.Email, request.Phone);
-        return Task.FromResult(_items.TryUpdate(id, updated, current));
+            var updated = new StoredSupplier(id, request.Name, request.EdrpouCode, request.Email, request.Phone);
+            if (_items.TryUpdate(id, updated, current))
+            {
+                return Task.FromResult(true);
+            }
+        }
     }
 
     public Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken)

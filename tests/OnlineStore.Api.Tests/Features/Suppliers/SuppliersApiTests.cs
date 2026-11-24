@@ -97,6 +97,27 @@ public sealed class SuppliersApiTests(ApiFactory factory) : IntegrationTestBase(
     }
 
     [Fact]
+    public async Task Put_ConcurrentUpdates_WithoutDeletion_AllReturnNoContent()
+    {
+        var created = await CreateAsync();
+        const int concurrency = 20;
+
+        var tasks = Enumerable.Range(0, concurrency).Select(async i =>
+        {
+            var request = new UpdateSupplierRequest(
+                $"Concurrent supplier {i}",
+                created.EdrpouCode,
+                $"concurrent-{i}@example.com",
+                $"+38050{i:D7}");
+            return await Client.PutAsJsonAsync($"/api/suppliers/{created.Id}", request);
+        });
+
+        var responses = await Task.WhenAll(tasks);
+
+        Assert.All(responses, response => Assert.Equal(HttpStatusCode.NoContent, response.StatusCode));
+    }
+
+    [Fact]
     public async Task Delete_ReturnsNoContent_WhenSupplierExists()
     {
         var created = await CreateAsync();

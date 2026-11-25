@@ -116,6 +116,18 @@ erDiagram
 | `Description` | `character varying(4000)` | NULL |
 | `IsActive` | `boolean` | NOT NULL |
 
+### Warehouse (#23)
+
+Таблиця `Warehouses` (міграція `AddWarehouse`). Поля з issue #23 і діаграми S1. **CHECK** `Priority` між 1 і 100 — у міграції #23; унікальний `Name` — #29; зв’язок через `Stock` — #44.
+
+| Стовпець | Тип у PostgreSQL | Обмеження |
+|----------|------------------|-----------|
+| `Id` | `uuid` | PK |
+| `Name` | `character varying(100)` | NOT NULL |
+| `City` | `character varying(100)` | NOT NULL |
+| `Address` | `character varying(300)` | NOT NULL |
+| `Priority` | `integer` | NOT NULL, CHECK 1–100 |
+
 ---
 
 ## Цільова модель (TZ §2.2–2.3 + issues S4–S8)

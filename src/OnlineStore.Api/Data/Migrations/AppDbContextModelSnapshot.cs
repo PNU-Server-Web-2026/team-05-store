@@ -94,6 +94,38 @@ namespace OnlineStore.Api.Data.Migrations
 
                     b.ToTable("Products", (string)null);
                 });
+
+            modelBuilder.Entity("OnlineStore.Api.Features.Warehouses.Warehouse", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Warehouses", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Warehouses_Priority", "\"Priority\" >= 1 AND \"Priority\" <= 100");
+                        });
+                });
 #pragma warning restore 612, 618
         }
     }

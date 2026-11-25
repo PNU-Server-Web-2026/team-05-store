@@ -74,7 +74,14 @@ public sealed class ProductsApiTests(ApiFactory factory) : IntegrationTestBase(f
     public async Task Put_ReturnsNoContent_WhenProductExists()
     {
         var created = await CreateAsync();
-        var request = new UpdateProductRequest("Updated name", created.Sku, 199.99m, "Updated description", false);
+        var request = new UpdateProductRequest
+        {
+            Name = "Updated name",
+            Sku = created.Sku,
+            Price = 199.99m,
+            Description = "Updated description",
+            IsActive = false
+        };
 
         var response = await Client.PutAsJsonAsync($"/api/products/{created.Id}", request);
 
@@ -92,7 +99,14 @@ public sealed class ProductsApiTests(ApiFactory factory) : IntegrationTestBase(f
     [Fact]
     public async Task Put_ReturnsNotFound_WhenMissing()
     {
-        var request = new UpdateProductRequest("Missing", "MISSING-1", 10m, "none", true);
+        var request = new UpdateProductRequest
+        {
+            Name = "Missing",
+            Sku = "MISSING-1",
+            Price = 10m,
+            Description = "none",
+            IsActive = true
+        };
 
         var response = await Client.PutAsJsonAsync($"/api/products/{Guid.NewGuid()}", request);
 
@@ -132,6 +146,13 @@ public sealed class ProductsApiTests(ApiFactory factory) : IntegrationTestBase(f
     private static CreateProductRequest NewRequest()
     {
         var suffix = Guid.NewGuid().ToString("N")[..8].ToUpperInvariant();
-        return new CreateProductRequest($"Phone {suffix}", $"PHONE-{suffix}", 499.90m, "Mobile phone", true);
+        return new CreateProductRequest
+        {
+            Name = $"Phone {suffix}",
+            Sku = $"PHONE-{suffix}",
+            Price = 499.90m,
+            Description = "Mobile phone",
+            IsActive = true
+        };
     }
 }

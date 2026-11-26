@@ -1,2 +1,2 @@
-# Merge в dev: 2 approve одногрупників, зелений CI, resolved conversations (політика спринту).
-# Обов'язковий approve викладача для feature PR знято; викладач переглядає злиті PR вибірково.
+# Власник коду: викладач. Його approve обов'язковий для релізу dev → main.
+* @DrFaust555

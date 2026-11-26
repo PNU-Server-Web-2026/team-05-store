@@ -77,6 +77,23 @@ refactor: extract price calculation into service
 - Один PR = одна задача. Не змішуйте в PR непов'язані зміни.
 - Невеликі PR рев'юються швидше. Якщо задача розростається — розбийте її.
 
+## Реліз наприкінці спринту
+
+- PR **`dev` → `main`** з назвою `release: S<N>` (наприклад `release: S3`).
+- Умови: **зелений CI**, **approve викладача** (через `CODEOWNERS`), усі conversations resolved.
+- Прямий push у `main` заборонено — лише через такий PR.
+
+## Як оновити гілку, що відстала від `dev`
+
+```bash
+git fetch origin
+git rebase origin/dev
+# якщо змінювали EF-модель — див. розділ «Міграції EF Core»
+git push --force-with-lease
+```
+
+Якщо **CI не запустився** після push: **Close → Reopen** PR на GitHub.
+
 ## Ліміти WIP
 
 - Максимум **1 задача в IN PROGRESS** і **1 задача в REVIEW** на одного студента.

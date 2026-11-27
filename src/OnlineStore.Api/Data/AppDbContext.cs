@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using OnlineStore.Api.Features.Categories;
 using OnlineStore.Api.Features.Products;
+using OnlineStore.Api.Features.Warehouses;
 
 namespace OnlineStore.Api.Data;
 
@@ -15,6 +16,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Category> Categories => Set<Category>();
 
     public DbSet<Product> Products => Set<Product>();
+
+    public DbSet<Warehouse> Warehouses => Set<Warehouse>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

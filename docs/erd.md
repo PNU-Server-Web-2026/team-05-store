@@ -116,6 +116,19 @@ erDiagram
 | `Description` | `character varying(4000)` | NULL |
 | `IsActive` | `boolean` | NOT NULL |
 
+### Customer (#21)
+
+Таблиця `Customers` (міграція `AddCustomer`). Поля з issue #21 і діаграми S1. Унікальний `Email` — #29; зв’язок з `Order` — #45, з `User` — #66.
+
+| Стовпець | Тип у PostgreSQL | Обмеження |
+|----------|------------------|-----------|
+| `Id` | `uuid` | PK |
+| `FirstName` | `character varying(100)` | NOT NULL |
+| `LastName` | `character varying(100)` | NOT NULL |
+| `Email` | `character varying(320)` | NOT NULL |
+| `Phone` | `character varying(20)` | NOT NULL |
+| `ShippingAddress` | `character varying(300)` | NOT NULL |
+
 ---
 
 ## Цільова модель (TZ §2.2–2.3 + issues S4–S8)

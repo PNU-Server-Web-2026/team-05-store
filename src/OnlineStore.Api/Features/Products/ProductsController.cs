@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace OnlineStore.Api.Features.Products;
 
 [ApiController]
 [Route("api/products")]
-public class ProductsController(IProductService products) : ControllerBase
+public class ProductsController(IProductService products, IOutputCacheStore cache) : ControllerBase
 {
     [HttpGet]
+    [OutputCache(PolicyName = ProductsOutputCache.PolicyName)]
     [ProducesResponseType(typeof(IReadOnlyList<ProductResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<ProductResponse>>> GetAll(CancellationToken cancellationToken)
     {
@@ -35,6 +37,7 @@ public class ProductsController(IProductService products) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await products.CreateAsync(request, cancellationToken);
+        await cache.EvictByTagAsync(ProductsOutputCache.Tag, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
@@ -52,6 +55,7 @@ public class ProductsController(IProductService products) : ControllerBase
             return NotFound();
         }
 
+        await cache.EvictByTagAsync(ProductsOutputCache.Tag, cancellationToken);
         return NoContent();
     }
 
@@ -66,6 +70,7 @@ public class ProductsController(IProductService products) : ControllerBase
             return NotFound();
         }
 
+        await cache.EvictByTagAsync(ProductsOutputCache.Tag, cancellationToken);
         return NoContent();
     }
 }

@@ -7,6 +7,15 @@ public static class ProductsFeatureExtensions
         // In-memory словник спільний для всіх запитів — тому Singleton.
         // Scoped/Transient дали б порожній склад на кожен HTTP-запит.
         services.AddSingleton<IProductService, InMemoryProductService>();
+
+        services.AddOutputCache(options =>
+        {
+            options.AddPolicy(ProductsOutputCache.PolicyName, policy => policy
+                .Expire(TimeSpan.FromMinutes(1))
+                .SetVaryByQuery("*")
+                .Tag(ProductsOutputCache.Tag));
+        });
+
         return services;
     }
 }

@@ -1,3 +1,4 @@
+using OnlineStore.Api.Common;
 using OnlineStore.Api.Data;
 using OnlineStore.Api.Features.Categories;
 using OnlineStore.Api.Features.Health;
@@ -35,7 +36,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();
 
-// HTTP-конвеєр.
+// HTTP-конвеєр. Correlation ID — першим, щоб був у всіх логах і відповідях.
+app.UseCorrelationId();
 if (app.Environment.IsDevelopment())
 {
     // OpenAPI-документ: /openapi/v1.json

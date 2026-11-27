@@ -2,6 +2,7 @@ using OnlineStore.Api.Common;
 using OnlineStore.Api.Data;
 using OnlineStore.Api.Features.Categories;
 using OnlineStore.Api.Features.Health;
+using OnlineStore.Api.Features.Ping;
 using OnlineStore.Api.Features.Products;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
@@ -13,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 // у папці фічі (наприклад, builder.Services.AddHotelsFeature();), див. CONTRIBUTING.md.
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
+builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
 builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer((document, context, cancellationToken) =>
@@ -28,6 +30,7 @@ builder.Services.AddOpenApi(options =>
     });
 });
 builder.Services.AddHealthFeature();
+builder.Services.AddPingFeature();
 builder.Services.AddCategoriesFeature();
 builder.Services.AddProductsFeature();
 

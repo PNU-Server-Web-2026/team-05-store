@@ -7,11 +7,11 @@ namespace OnlineStore.Api.Features.Ping;
 /// </summary>
 [ApiController]
 [Route("api/ping")]
-public class PingController : ControllerBase
+public class PingController(IPingService ping) : ControllerBase
 {
     /// <summary>
     /// GET /api/ping — повертає "pong" і поточний час UTC.
     /// </summary>
     [HttpGet]
-    public ActionResult<PingResponse> Get() => Ok(new PingResponse("pong", DateTime.UtcNow));
+    public ActionResult<PingResponse> Get() => Ok(ping.Get());
 }

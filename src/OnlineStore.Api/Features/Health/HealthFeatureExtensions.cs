@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.DependencyInjection;
 using OnlineStore.Api.Data;
 
@@ -33,14 +34,14 @@ public static class HealthFeatureExtensions
         {
             Predicate = _ => false,
             ResponseWriter = HealthCheckResponseWriter.WriteJsonResponse
-        });
+        }).DisableRateLimiting();
 
         // Readiness: перевіряє готовність до роботи (включає перевірку БД за тегом "ready").
         app.MapHealthChecks("/health/ready", new HealthCheckOptions
         {
             Predicate = check => check.Tags.Contains("ready"),
             ResponseWriter = HealthCheckResponseWriter.WriteJsonResponse
-        });
+        }).DisableRateLimiting();
 
         return app;
     }
